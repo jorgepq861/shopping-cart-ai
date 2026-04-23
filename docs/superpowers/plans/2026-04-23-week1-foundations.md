@@ -245,7 +245,8 @@ select = [
   "RUF",  # ruff-specific
   "N",    # pep8-naming
   "PL",   # pylint
-  "TCH",  # flake8-type-checking
+  # "TCH" intencionalmente excluido: choca con Pydantic/SQLAlchemy/FastAPI
+  # (sus anotaciones se resuelven en runtime, no solo para el type checker)
 ]
 ignore = ["PLR0913"]  # too many arguments — a veces inevitable en handlers
 
@@ -279,7 +280,7 @@ repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.6.9
     hooks:
-      - id: ruff
+      - id: ruff-check
         args: [--fix]
       - id: ruff-format
 
@@ -494,7 +495,7 @@ git commit -m "infra: add docker compose (postgres + qdrant + redis) and Makefil
 - Create: `src/shopping_copilot/config.py`
 - Modify: `pyproject.toml` (añadir dependencia)
 
-- [ ] **Step 4.1: Añadir `pydantic-settings` como dependencia principal**
+- [x] **Step 4.1: Añadir `pydantic-settings` como dependencia principal**
 
 ```bash
 uv add "pydantic>=2.9" "pydantic-settings>=2.5"
@@ -502,7 +503,7 @@ uv add "pydantic>=2.9" "pydantic-settings>=2.5"
 
 Esto actualiza `pyproject.toml` y `uv.lock`.
 
-- [ ] **Step 4.2: Crear `.env.example`**
+- [x] **Step 4.2: Crear `.env.example`**
 
 ```bash
 # === LLM providers ===
@@ -531,7 +532,7 @@ APP_ENV=dev
 APP_LOG_LEVEL=INFO
 ```
 
-- [ ] **Step 4.3: Crear `src/shopping_copilot/config.py`**
+- [x] **Step 4.3: Crear `src/shopping_copilot/config.py`**
 
 ```python
 """Central configuration. All env vars flow through this module."""
@@ -585,7 +586,7 @@ def get_settings() -> Settings:
     return Settings()  # type: ignore[call-arg]
 ```
 
-- [ ] **Step 4.4: Crear tu `.env` real (sin commit)**
+- [x] **Step 4.4: Crear tu `.env` real (sin commit)**
 
 ```bash
 cp .env.example .env
@@ -593,7 +594,7 @@ cp .env.example .env
 
 Editar `.env` y completar **solo** lo que ya tienes (Anthropic/OpenAI/Voyage/LangSmith si ya creaste las cuentas). Si aún no tienes las keys, déjalas como `xxx` — las llenarás en la Task 8.
 
-- [ ] **Step 4.5: Test rápido de config**
+- [x] **Step 4.5: Test rápido de config**
 
 ```bash
 uv run python -c "from shopping_copilot.config import get_settings; s = get_settings(); print('env:', s.app_env); print('project:', s.langchain_project)"
@@ -601,7 +602,7 @@ uv run python -c "from shopping_copilot.config import get_settings; s = get_sett
 
 Expected: imprime `env: dev` y el nombre del proyecto.
 
-- [ ] **Step 4.6: Commit**
+- [x] **Step 4.6: Commit**
 
 ```bash
 git add pyproject.toml uv.lock .env.example src/shopping_copilot/config.py

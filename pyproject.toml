@@ -5,7 +5,10 @@ description = "Retail shopping copilot — agentic AI learning project"
 authors = [{ name = "Jorge Pareja", email = "jorge.pareja@bayteq.com" }]
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "pydantic>=2.9",
+    "pydantic-settings>=2.5",
+]
 
 [build-system]
 requires = ["hatchling"]
@@ -47,7 +50,7 @@ select = [
   "RUF",  # ruff-specific
   "N",    # pep8-naming
   "PL",   # pylint
-  "TCH",  # flake8-type-checking
+  # "TCH" removido: choca con Pydantic/SQLAlchemy/FastAPI (anotaciones runtime)
 ]
 ignore = ["PLR0913"]  # too many arguments — a veces inevitable en handlers
 
