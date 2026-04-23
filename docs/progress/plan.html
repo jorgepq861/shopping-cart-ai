@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Retail Shopping Copilot — Progress Tracker</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --panel: #171a21;
+      --panel-2: #1f2430;
+      --text: #e6e8ec;
+      --muted: #8a93a6;
+      --accent: #7c9cff;
+      --accent-2: #6ee7b7;
+      --danger: #ef4444;
+      --warn: #f59e0b;
+      --border: #262b38;
+      --ok: #10b981;
+      --pending: #374151;
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #f6f7fb;
+        --panel: #ffffff;
+        --panel-2: #f0f2f7;
+        --text: #0f172a;
+        --muted: #64748b;
+        --accent: #2563eb;
+        --accent-2: #059669;
+        --border: #e2e8f0;
+        --pending: #cbd5e1;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+    header {
+      position: sticky;
+      top: 0;
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 18px 24px;
+      z-index: 10;
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+    }
+    header .subtitle {
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .overall {
+      margin-left: auto;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    .ring {
+      position: relative;
+      width: 64px;
+      height: 64px;
+    }
+    .ring svg {
+      transform: rotate(-90deg);
+    }
+    .ring-label {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .actions button {
+      background: var(--panel-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      margin-left: 6px;
+      transition: background 0.15s;
+    }
+    .actions button:hover { background: var(--border); }
+    .actions button.danger { border-color: var(--danger); color: var(--danger); }
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    section.week {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    section.week > header {
+      all: unset;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 18px 22px;
+      cursor: pointer;
+      background: var(--panel-2);
+      border-bottom: 1px solid var(--border);
+    }
+    section.week > header:hover { background: var(--border); }
+    section.week h2 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    section.week h2 small {
+      color: var(--muted);
+      font-weight: 400;
+      font-size: 13px;
+      margin-left: 8px;
+    }
+    .progress-bar {
+      width: 160px;
+      height: 8px;
+      background: var(--pending);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .progress-bar > div {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      transition: width 0.3s;
+    }
+    .week-body {
+      padding: 16px 22px 22px;
+      display: none;
+    }
+    section.week.open .week-body { display: block; }
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 18px 0 8px;
+    }
+    ul.tasks {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    ul.tasks li {
+      padding: 7px 0;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      border-bottom: 1px dashed var(--border);
+    }
+    ul.tasks li:last-child { border-bottom: none; }
+    ul.tasks li input[type="checkbox"] {
+      margin-top: 4px;
+      cursor: pointer;
+      accent-color: var(--accent);
+      transform: scale(1.1);
+    }
+    ul.tasks li label {
+      cursor: pointer;
+      flex: 1;
+      font-size: 14px;
+    }
+    ul.tasks li.done label {
+      text-decoration: line-through;
+      color: var(--muted);
+    }
+    .concepts {
+      background: var(--panel-2);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-top: 10px;
+    }
+    .concepts .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 4px 10px;
+      margin: 4px 4px 4px 0;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+      user-select: none;
+    }
+    .concepts .chip:hover { border-color: var(--accent); }
+    .concepts .chip.done {
+      background: color-mix(in srgb, var(--accent-2) 20%, transparent);
+      border-color: var(--accent-2);
+      color: var(--accent-2);
+      text-decoration: line-through;
+    }
+    textarea.notes {
+      width: 100%;
+      min-height: 80px;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-family: inherit;
+      font-size: 13px;
+      resize: vertical;
+      margin-top: 8px;
+    }
+    textarea.notes:focus {
+      outline: 2px solid var(--accent);
+      border-color: var(--accent);
+    }
+    .meta {
+      display: flex;
+      gap: 14px;
+      font-size: 12px;
+      color: var(--muted);
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+    .meta span b { color: var(--text); }
+    .caret {
+      transition: transform 0.2s;
+      color: var(--muted);
+    }
+    section.week.open .caret { transform: rotate(90deg); }
+    .banner {
+      background: color-mix(in srgb, var(--accent) 15%, transparent);
+      border: 1px solid var(--accent);
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 18px;
+      font-size: 13px;
+      color: var(--text);
+    }
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      padding: 30px 0;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+    .dod-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+      margin-top: 10px;
+    }
+    .dod-card {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+    .dod-card h3 {
+      margin: 0 0 8px;
+      font-size: 13px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>🛒 Retail Shopping Copilot — Fase 1</h1>
+    <div class="subtitle">Progreso de aprendizaje agentic-AI · 3–4 semanas · <a href="../superpowers/specs/2026-04-23-retail-shopping-copilot-design.md" style="color:var(--accent)">Spec completo</a></div>
+  </div>
+  <div class="overall">
+    <div class="ring" aria-hidden="true">
+      <svg width="64" height="64">
+        <circle cx="32" cy="32" r="28" fill="none" stroke="var(--pending)" stroke-width="6" />
+        <circle id="ring-fg" cx="32" cy="32" r="28" fill="none" stroke="url(#grad)" stroke-width="6"
+                stroke-dasharray="175.9" stroke-dashoffset="175.9" stroke-linecap="round" />
+        <defs>
+          <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="var(--accent)" />
+            <stop offset="100%" stop-color="var(--accent-2)" />
+          </linearGradient>
+        </defs>
+      </svg>
+      <div class="ring-label" id="ring-label">0%</div>
+    </div>
+    <div class="actions">
+      <button onclick="exportJSON()">Exportar</button>
+      <button onclick="importJSON()">Importar</button>
+      <button class="danger" onclick="resetAll()">Reset</button>
+    </div>
+  </div>
+</header>
+
+<main id="root">
+  <div class="banner">
+    Esta página vive 100 % local. Tu progreso se guarda en <code>localStorage</code> de este navegador. Usá <b>Exportar</b> periódicamente si cambiás de máquina.
+  </div>
+</main>
+
+<footer>
+  v1 · 2026-04-23 · Spec:
+  <a href="../superpowers/specs/2026-04-23-retail-shopping-copilot-design.md">2026-04-23-retail-shopping-copilot-design.md</a>
+</footer>
+
+<script>
+/* ============================================================
+   Data model: prerequisites + 4 weeks + DoD + concepts
+   ============================================================ */
+const PLAN = {
+  prerequisites: {
+    title: "Prerrequisitos",
+    accounts: [
+      { id: "pre-anthropic", label: "Cuenta + API key Anthropic (budget cap $30)" },
+      { id: "pre-openai",    label: "Cuenta + API key OpenAI (budget cap $10)" },
+      { id: "pre-voyage",    label: "Cuenta + API key Voyage AI (free tier 50M tok/mes)" },
+      { id: "pre-langsmith", label: "Cuenta + API key LangSmith (free tier 5k traces/mes)" },
+      { id: "pre-github",    label: "Repo en GitHub + Actions habilitado" },
+    ],
+    software: [
+      { id: "pre-py",     label: "Python 3.12 instalado (pyenv)" },
+      { id: "pre-uv",     label: "uv instalado" },
+      { id: "pre-docker", label: "Docker Desktop corriendo" },
+      { id: "pre-ide",    label: "Cursor + PyCharm Community instalados" },
+      { id: "pre-git",    label: "Git configurado con email Bayteq" },
+      { id: "pre-make",   label: "`make` disponible (macOS nativo)" },
+    ],
+  },
+  weeks: [
+    {
+      id: "w1",
+      title: "Semana 1 — Fundaciones + primer flujo E2E trivial",
+      goal: "Repo scaffoldeado, arquitectura sólida, agente trivial respondiendo y trazado.",
+      blocks: [
+        { id: "w1-b1",  label: "Setup proyecto (uv init, pyproject.toml, estructura Clean Arch)" },
+        { id: "w1-b2",  label: "Ruff + mypy --strict + pre-commit configurados" },
+        { id: "w1-b3",  label: "docker-compose.yml con Postgres + Qdrant + Redis; Makefile (up/down/reset)" },
+        { id: "w1-b4",  label: "pydantic-settings leyendo .env (.env.example creado)" },
+        { id: "w1-b5",  label: "Domain mínimo: Sku, Money, Product + puertos LLMPort, EmbeddingsPort, VectorStorePort, CatalogPort" },
+        { id: "w1-b6",  label: "AnthropicAdapter (Haiku + Sonnet)" },
+        { id: "w1-b7",  label: "VoyageAdapter (embeddings)" },
+        { id: "w1-b8",  label: "Tests de contrato mínimos para adaptadores" },
+        { id: "w1-b9",  label: "Seed inicial: 20 laptops sintéticas → Postgres (Alembic migration)" },
+        { id: "w1-b10", label: "FastAPI /health + /chat (nodo único tipo echo-con-Claude)" },
+        { id: "w1-b11", label: "Streamlit app.py consumiendo /chat" },
+        { id: "w1-b12", label: "LangSmith tracing verificado (trace aparece en UI)" },
+        { id: "w1-b13", label: "CI básica en GitHub Actions (lint + mypy + unit tests)" },
+      ],
+      concepts: [
+        "Port/Adapter en Python (Protocol)",
+        "uv",
+        "ruff (format + lint)",
+        "mypy --strict",
+        "pydantic-settings (12-factor)",
+        "SQLAlchemy 2 async",
+        "Alembic migrations",
+        "Pydantic DTOs en FastAPI",
+        "LangSmith tracing básico",
+        "Token y costo",
+        "Prompt caching básico",
+      ],
+    },
+    {
+      id: "w2",
+      title: "Semana 2 — RAG completo + primer grafo LangGraph",
+      goal: "Búsqueda semántica funcional sobre catálogo real, cero alucinación de SKU.",
+      blocks: [
+        { id: "w2-b1",  label: "Seed completo: 200 productos (3 categorías) + 1000 reseñas + 30 FAQs" },
+        { id: "w2-b2",  label: "Chunking por tipo de documento (fichas, reseñas, FAQs)" },
+        { id: "w2-b3",  label: "Contextual retrieval con Haiku (header por chunk)" },
+        { id: "w2-b4",  label: "Embeddings batch con Voyage (input_type=document)" },
+        { id: "w2-b5",  label: "Qdrant: crear colección + payload indexes explícitos + text index" },
+        { id: "w2-b6",  label: "Upsert a Qdrant (idempotente + incremental)" },
+        { id: "w2-b7",  label: "HybridRetriever: semántico + BM25 + RRF" },
+        { id: "w2-b8",  label: "Voyage rerank-2-lite (top 20 → top 5)" },
+        { id: "w2-b9",  label: "SearchProductsUseCase orquestando embed→retrieve→rerank→load" },
+        { id: "w2-b10", label: "Primer grafo LangGraph: START→router→search→output_guardrails→END" },
+        { id: "w2-b11", label: "Checkpointer Postgres (PostgresSaver)" },
+        { id: "w2-b12", label: "Router node (Haiku + structured output Pydantic)" },
+        { id: "w2-b13", label: "Prompts en archivos Jinja versionados" },
+        { id: "w2-b14", label: "RAG evals v1: golden dataset 20 queries, Recall@10 ≥ 0.85" },
+      ],
+      concepts: [
+        "Chunking por tipo",
+        "Embeddings (vectores densos)",
+        "Dimensiones y normalización",
+        "input_type document vs query",
+        "Cosine vs dot product",
+        "HNSW",
+        "Payload index Qdrant",
+        "BM25",
+        "Retrieval híbrido",
+        "RRF (Reciprocal Rank Fusion)",
+        "Cross-encoder vs bi-encoder",
+        "Reranker",
+        "Contextual Retrieval (Anthropic)",
+        "Parent-document retrieval",
+        "LangGraph StateGraph + nodes + edges",
+        "TypedDict state + add_messages reducer",
+        "Checkpointer + thread_id",
+        "Structured output Pydantic",
+        "LLM-as-judge faithfulness",
+        "Recall@K / MRR / NDCG",
+      ],
+    },
+    {
+      id: "w3",
+      title: "Semana 3 — Multi-agente completo + guardrails + HITL",
+      goal: "Copiloto end-to-end con carrito, comparaciones, checkout + HITL, guardrails activos.",
+      blocks: [
+        { id: "w3-b1",  label: "Dominio ampliado: Cart, CartItem, Order, Discount, StockLevel" },
+        { id: "w3-b2",  label: "Puertos: CartPort, PaymentPort, NotificationPort" },
+        { id: "w3-b3",  label: "RedisCartAdapter + MockPaymentAdapter + ConsoleNotificationAdapter" },
+        { id: "w3-b4",  label: "Use cases: CompareProducts, AddToCart, Checkout, EscalateToHuman" },
+        { id: "w3-b5",  label: "Grafo completo (router + search + comparator + cart + checkout + smalltalk + out_of_scope)" },
+        { id: "w3-b6",  label: "HITL: interrupt() + botones Streamlit Aprobar/Rechazar + /resume" },
+        { id: "w3-b7",  label: "NeMo Guardrails config.yml + flows Colang (input rails)" },
+        { id: "w3-b8",  label: "Presidio integrado (PII: bloquea CC/DNI, redacta email/teléfono)" },
+        { id: "w3-b9",  label: "Output rails: no_invented_skus, price_matches_catalog" },
+        { id: "w3-b10", label: "Guardrails AI para structured output" },
+        { id: "w3-b11", label: "PricingService (policy: max 30% discount, no stackable)" },
+        { id: "w3-b12", label: "StockService + BudgetService (HITL threshold $500)" },
+        { id: "w3-b13", label: "Tests exhaustivos de policies" },
+        { id: "w3-b14", label: "Red-team dataset v1 (30–50 ataques)" },
+      ],
+      concepts: [
+        "LangGraph conditional edges",
+        "Command / interrupts / resume",
+        "HITL nativo LangGraph",
+        "Model cascading (Haiku+Sonnet)",
+        "NeMo Guardrails (Colang DSL)",
+        "Presidio (entities, recognizers, anonymization)",
+        "Prompt injection defense-in-depth",
+        "Guardrails AI",
+        "Policy-as-code",
+        "Combinación guardrails + policies + tool calling",
+      ],
+    },
+    {
+      id: "w4",
+      title: "Semana 4 — Evals completos + CI gates + observabilidad + pulido",
+      goal: "Calidad defendible, cambios futuros protegidos por evals, listo para Fase 2.",
+      blocks: [
+        { id: "w4-b1",  label: "Evaluators LLM-as-judge (faithfulness, relevance, safety)" },
+        { id: "w4-b2",  label: "Evaluators deterministic (sku_valid, price_valid, intent_accuracy)" },
+        { id: "w4-b3",  label: "End-to-end task success evaluator" },
+        { id: "w4-b4",  label: "Datasets LangSmith versionados (golden_conv, rag_golden, router_golden, redteam)" },
+        { id: "w4-b5",  label: "Calibración del juez: 30 juicios manuales, Cohen's kappa ≥ 0.6" },
+        { id: "w4-b6",  label: "make evals-quick (15 casos, local)" },
+        { id: "w4-b7",  label: "make evals-full (130 casos, en CI)" },
+        { id: "w4-b8",  label: "GitHub Actions: corre evals en PR + comentario con tabla delta" },
+        { id: "w4-b9",  label: "CI gates activos (bloqueo de merge si rompe umbrales)" },
+        { id: "w4-b10", label: "OTel auto-instrumentation (FastAPI, httpx, SQLAlchemy, Redis)" },
+        { id: "w4-b11", label: "Console exporter de OTel (spans en terminal)" },
+        { id: "w4-b12", label: "structlog JSON con trace_id" },
+        { id: "w4-b13", label: "prometheus-fastapi-instrumentator expuesto en /metrics" },
+        { id: "w4-b14", label: "Iteración de prompts hasta cumplir umbrales" },
+        { id: "w4-b15", label: "README + doc de arquitectura + runbook de setup" },
+        { id: "w4-b16", label: "OPCIONAL: migración inicial a Next.js + Vercel AI SDK" },
+      ],
+      concepts: [
+        "LLM-as-judge discipline",
+        "Rubrics y prompts canónicos",
+        "Cohen's kappa / agreement",
+        "Regression testing para agentes",
+        "CI gates declarativos",
+        "OpenTelemetry (spans, attributes, context propagation)",
+        "Auto vs manual instrumentation",
+        "Correlación logs/traces/metrics (trace_id)",
+        "SLOs/SLIs para agentes",
+        "(Opcional) SSE streaming tool calls",
+        "(Opcional) Vercel AI SDK useChat/useInterrupt",
+      ],
+    },
+  ],
+  dod: {
+    functional: [
+      { id: "dod-f1", label: "Conversación multi-turno: buscar → comparar → carrito → checkout → orden" },
+      { id: "dod-f2", label: "HITL operativo (compra > $500 requiere aprobación)" },
+      { id: "dod-f3", label: "Guardrails bloquean injection, PII, jailbreak, off-topic" },
+      { id: "dod-f4", label: "Cero hallucination de SKU/precio (validado por rail)" },
+      { id: "dod-f5", label: "HITL resume funciona tras reinicio del proceso" },
+    ],
+    quality: [
+      { id: "dod-q1", label: "Router accuracy ≥ 0.90" },
+      { id: "dod-q2", label: "RAG Recall@10 ≥ 0.85" },
+      { id: "dod-q3", label: "Faithfulness ≥ 0.95" },
+      { id: "dod-q4", label: "Red-team block rate ≥ 0.95" },
+      { id: "dod-q5", label: "E2E task success ≥ 0.80 sobre golden" },
+    ],
+    operational: [
+      { id: "dod-o1", label: "CI con evals en PR + gates activos" },
+      { id: "dod-o2", label: "LangSmith tracing + feedback 👍👎 operativo" },
+      { id: "dod-o3", label: "OTel + structlog en console" },
+      { id: "dod-o4", label: "`make up` levanta todo" },
+      { id: "dod-o5", label: "Docs: README, arquitectura, runbook setup" },
+    ],
+    economic: [
+      { id: "dod-e1", label: "Costo < $0.08 por conversación promedio" },
+      { id: "dod-e2", label: "Latencia p95 < 6 s / turno" },
+      { id: "dod-e3", label: "LangSmith consumo ≤ 4k traces/mes" },
+    ],
+  },
+};
+
+/* ============================================================
+   Persistence (localStorage)
+   ============================================================ */
+const STORE_KEY = "shopping-copilot-progress-v1";
+const state = load();
+
+function load() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return { checks: {}, concepts: {}, notes: {}, openWeeks: ["w1"] };
+}
+function save() {
+  localStorage.setItem(STORE_KEY, JSON.stringify(state));
+}
+
+function isChecked(id) { return !!state.checks[id]; }
+function toggleCheck(id) { state.checks[id] = !state.checks[id]; save(); render(); }
+
+function isConceptDone(weekId, c) {
+  return !!(state.concepts[weekId] && state.concepts[weekId][c]);
+}
+function toggleConcept(weekId, c) {
+  state.concepts[weekId] = state.concepts[weekId] || {};
+  state.concepts[weekId][c] = !state.concepts[weekId][c];
+  save(); render();
+}
+
+function setNote(weekId, v) {
+  state.notes[weekId] = v;
+  save();
+}
+
+function toggleWeek(id) {
+  const idx = state.openWeeks.indexOf(id);
+  if (idx >= 0) state.openWeeks.splice(idx, 1);
+  else state.openWeeks.push(id);
+  save(); render();
+}
+
+/* ============================================================
+   Rendering
+   ============================================================ */
+function render() {
+  const root = document.getElementById("root");
+  root.innerHTML = `
+    <div class="banner">
+      Esta página vive 100 % local. Tu progreso se guarda en <code>localStorage</code> de este navegador. Usá <b>Exportar</b> periódicamente si cambiás de máquina.
+    </div>
+    ${renderPrereqs()}
+    ${PLAN.weeks.map(renderWeek).join("")}
+    ${renderDoD()}
+  `;
+  updateOverallRing();
+  // wire events
+  root.querySelectorAll("[data-check]").forEach(el => {
+    el.addEventListener("change", () => toggleCheck(el.dataset.check));
+  });
+  root.querySelectorAll("[data-concept]").forEach(el => {
+    el.addEventListener("click", () => {
+      const [w, ...c] = el.dataset.concept.split("::");
+      toggleConcept(w, c.join("::"));
+    });
+  });
+  root.querySelectorAll("[data-note]").forEach(el => {
+    el.addEventListener("input", () => setNote(el.dataset.note, el.value));
+  });
+  root.querySelectorAll("[data-toggle]").forEach(el => {
+    el.addEventListener("click", (ev) => {
+      // only toggle if click not on a control inside
+      if (ev.target.tagName === "INPUT" || ev.target.tagName === "LABEL") return;
+      toggleWeek(el.dataset.toggle);
+    });
+  });
+}
+
+function renderPrereqs() {
+  const tasks = [...PLAN.prerequisites.accounts, ...PLAN.prerequisites.software];
+  const pct = pctOf(tasks.map(t => t.id));
+  return `
+    <section class="week ${state.openWeeks.includes("pre") ? "open" : ""}">
+      <header data-toggle="pre">
+        <div>
+          <h2>📋 Prerrequisitos <small>${countDone(tasks.map(t => t.id))} / ${tasks.length}</small></h2>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div class="progress-bar"><div style="width:${pct}%"></div></div>
+          <span class="caret">▶</span>
+        </div>
+      </header>
+      <div class="week-body">
+        <div class="section-title">Cuentas y API keys</div>
+        <ul class="tasks">
+          ${PLAN.prerequisites.accounts.map(renderTask).join("")}
+        </ul>
+        <div class="section-title">Software local</div>
+        <ul class="tasks">
+          ${PLAN.prerequisites.software.map(renderTask).join("")}
+        </ul>
+      </div>
+    </section>
+  `;
+}
+
+function renderWeek(w) {
+  const ids = w.blocks.map(b => b.id);
+  const done = countDone(ids);
+  const pct = pctOf(ids);
+  const open = state.openWeeks.includes(w.id);
+  const conceptsDone = w.concepts.filter(c => isConceptDone(w.id, c)).length;
+  return `
+    <section class="week ${open ? "open" : ""}">
+      <header data-toggle="${w.id}">
+        <div>
+          <h2>${w.title}</h2>
+          <div class="meta">
+            <span><b>Objetivo:</b> ${escape(w.goal)}</span>
+            <span><b>Bloques:</b> ${done}/${ids.length}</span>
+            <span><b>Conceptos:</b> ${conceptsDone}/${w.concepts.length}</span>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div class="progress-bar"><div style="width:${pct}%"></div></div>
+          <span class="caret">▶</span>
+        </div>
+      </header>
+      <div class="week-body">
+        <div class="section-title">Bloques a completar</div>
+        <ul class="tasks">
+          ${w.blocks.map(renderTask).join("")}
+        </ul>
+
+        <div class="section-title">Conceptos que aprendiste (clic para marcar)</div>
+        <div class="concepts">
+          ${w.concepts.map(c => `
+            <span class="chip ${isConceptDone(w.id, c) ? "done" : ""}"
+                  data-concept="${w.id}::${escape(c)}">
+              ${isConceptDone(w.id, c) ? "✔" : "•"} ${escape(c)}
+            </span>
+          `).join("")}
+        </div>
+
+        <div class="section-title">Notas de la semana</div>
+        <textarea class="notes" data-note="${w.id}" placeholder="Dudas, aprendizajes, links, decisiones tomadas…">${escape(state.notes[w.id] || "")}</textarea>
+      </div>
+    </section>
+  `;
+}
+
+function renderTask(t) {
+  return `
+    <li class="${isChecked(t.id) ? "done" : ""}">
+      <input type="checkbox" id="${t.id}" data-check="${t.id}" ${isChecked(t.id) ? "checked" : ""} />
+      <label for="${t.id}">${escape(t.label)}</label>
+    </li>
+  `;
+}
+
+function renderDoD() {
+  const all = [
+    ...PLAN.dod.functional,
+    ...PLAN.dod.quality,
+    ...PLAN.dod.operational,
+    ...PLAN.dod.economic,
+  ];
+  const pct = pctOf(all.map(x => x.id));
+  const open = state.openWeeks.includes("dod");
+  return `
+    <section class="week ${open ? "open" : ""}">
+      <header data-toggle="dod">
+        <div>
+          <h2>🎯 Definition of Done — Fase 1 <small>${countDone(all.map(x => x.id))} / ${all.length}</small></h2>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div class="progress-bar"><div style="width:${pct}%"></div></div>
+          <span class="caret">▶</span>
+        </div>
+      </header>
+      <div class="week-body">
+        <div class="dod-grid">
+          <div class="dod-card">
+            <h3>Funcional</h3>
+            <ul class="tasks">${PLAN.dod.functional.map(renderTask).join("")}</ul>
+          </div>
+          <div class="dod-card">
+            <h3>Calidad</h3>
+            <ul class="tasks">${PLAN.dod.quality.map(renderTask).join("")}</ul>
+          </div>
+          <div class="dod-card">
+            <h3>Operacional</h3>
+            <ul class="tasks">${PLAN.dod.operational.map(renderTask).join("")}</ul>
+          </div>
+          <div class="dod-card">
+            <h3>Económico</h3>
+            <ul class="tasks">${PLAN.dod.economic.map(renderTask).join("")}</ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+function pctOf(ids) {
+  if (!ids.length) return 0;
+  const done = ids.filter(isChecked).length;
+  return Math.round((done / ids.length) * 100);
+}
+function countDone(ids) { return ids.filter(isChecked).length; }
+
+function updateOverallRing() {
+  const allIds = [
+    ...PLAN.prerequisites.accounts.map(x => x.id),
+    ...PLAN.prerequisites.software.map(x => x.id),
+    ...PLAN.weeks.flatMap(w => w.blocks.map(b => b.id)),
+    ...PLAN.dod.functional.map(x => x.id),
+    ...PLAN.dod.quality.map(x => x.id),
+    ...PLAN.dod.operational.map(x => x.id),
+    ...PLAN.dod.economic.map(x => x.id),
+  ];
+  const pct = pctOf(allIds);
+  const circumference = 2 * Math.PI * 28;
+  const fg = document.getElementById("ring-fg");
+  fg.setAttribute("stroke-dasharray", circumference);
+  fg.setAttribute("stroke-dashoffset", circumference * (1 - pct / 100));
+  document.getElementById("ring-label").textContent = pct + "%";
+}
+
+/* ============================================================
+   Export / Import / Reset
+   ============================================================ */
+function exportJSON() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `shopping-copilot-progress-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+function importJSON() {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "application/json";
+  input.onchange = (ev) => {
+    const f = ev.target.files[0];
+    if (!f) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result);
+        Object.assign(state, data);
+        save(); render();
+        alert("Progreso importado ✓");
+      } catch (e) {
+        alert("Archivo inválido: " + e.message);
+      }
+    };
+    reader.readAsText(f);
+  };
+  input.click();
+}
+function resetAll() {
+  if (!confirm("¿Reset completo del progreso? Esta acción no se puede deshacer.")) return;
+  state.checks = {};
+  state.concepts = {};
+  state.notes = {};
+  state.openWeeks = ["w1"];
+  save(); render();
+}
+
+/* ============================================================
+   Utility
+   ============================================================ */
+function escape(s) {
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+render();
+</script>
+</body>
+</html>
