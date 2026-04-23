@@ -144,8 +144,8 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/shopping_copilot"]
 
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
   "pytest>=8.0",
   "pytest-asyncio>=0.23",
   "pytest-cov>=5.0",
