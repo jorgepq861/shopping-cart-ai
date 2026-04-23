@@ -61,7 +61,7 @@
 - Create: `README.md` (mínimo)
 - Create: estructura de carpetas bajo `src/shopping_copilot/` y `tests/`
 
-- [ ] **Step 1.1: Inicializar repo git**
+- [x] **Step 1.1: Inicializar repo git**
 
 ```bash
 cd ~/Documents/Jorge/Bayteq/source-code/agentic-ai
@@ -71,7 +71,7 @@ git branch -m main
 
 Verificar: `git status` dice "On branch main".
 
-- [ ] **Step 1.2: Crear `.gitignore`**
+- [x] **Step 1.2: Crear `.gitignore`**
 
 ```gitignore
 # Python
@@ -117,7 +117,7 @@ NOTES.md
 scratch/
 ```
 
-- [ ] **Step 1.3: Instalar `uv` si no lo tienes**
+- [x] **Step 1.3: Instalar `uv` si no lo tienes**
 
 ```bash
 which uv || curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -125,7 +125,7 @@ which uv || curl -LsSf https://astral.sh/uv/install.sh | sh
 
 Verificar: `uv --version` imprime versión ≥ 0.4.
 
-- [ ] **Step 1.4: Crear `pyproject.toml` inicial**
+- [x] **Step 1.4: Crear `pyproject.toml` inicial**
 
 ```toml
 [project]
@@ -160,7 +160,7 @@ testpaths = ["tests"]
 addopts = "-ra --strict-markers"
 ```
 
-- [ ] **Step 1.5: Crear estructura de carpetas**
+- [x] **Step 1.5: Crear estructura de carpetas**
 
 ```bash
 mkdir -p src/shopping_copilot/{domain,application,agents,infrastructure/{llm,embeddings,catalog,observability},api/routers,observability,guardrails} \
@@ -173,7 +173,7 @@ find src tests -type d -exec touch {}/__init__.py \;
 
 Verificar: `ls src/shopping_copilot/domain/` devuelve `__init__.py`.
 
-- [ ] **Step 1.6: Crear README.md mínimo**
+- [x] **Step 1.6: Crear README.md mínimo**
 
 ```markdown
 # Shopping Copilot
@@ -190,7 +190,7 @@ uv run streamlit run ui/app.py
 ```
 ```
 
-- [ ] **Step 1.7: Sincronizar dependencias de dev**
+- [x] **Step 1.7: Sincronizar dependencias de dev**
 
 ```bash
 uv sync
@@ -201,7 +201,7 @@ Verificar:
 - Se crea `uv.lock`.
 - `uv run pytest --version` responde `pytest 8.x`.
 
-- [ ] **Step 1.8: Commit**
+- [x] **Step 1.8: Commit**
 
 ```bash
 git add pyproject.toml .gitignore README.md src tests scripts ui docker migrations docs uv.lock
@@ -222,7 +222,7 @@ git commit -m "chore: bootstrap project with uv + Clean Arch scaffolding"
 - Modify: `pyproject.toml` (añadir secciones `[tool.ruff]` y `[tool.mypy]`)
 - Create: `.pre-commit-config.yaml`
 
-- [ ] **Step 2.1: Añadir configuración Ruff a `pyproject.toml`**
+- [x] **Step 2.1: Añadir configuración Ruff a `pyproject.toml`**
 
 Al final de `pyproject.toml`:
 
@@ -256,7 +256,7 @@ ignore = ["PLR0913"]  # too many arguments — a veces inevitable en handlers
 quote-style = "double"
 ```
 
-- [ ] **Step 2.2: Añadir configuración mypy a `pyproject.toml`**
+- [x] **Step 2.2: Añadir configuración mypy a `pyproject.toml`**
 
 ```toml
 [tool.mypy]
@@ -272,7 +272,7 @@ module = ["tests.*"]
 disallow_untyped_defs = false  # tests pueden tener fixtures sin tipar
 ```
 
-- [ ] **Step 2.3: Crear `.pre-commit-config.yaml`**
+- [x] **Step 2.3: Crear `.pre-commit-config.yaml`**
 
 ```yaml
 repos:
@@ -302,7 +302,7 @@ repos:
         pass_filenames: false
 ```
 
-- [ ] **Step 2.4: Instalar los hooks**
+- [x] **Step 2.4: Instalar los hooks**
 
 ```bash
 uv run pre-commit install
@@ -310,7 +310,7 @@ uv run pre-commit install
 
 Verificar: `.git/hooks/pre-commit` existe.
 
-- [ ] **Step 2.5: Correr Ruff sobre el repo vacío (debe pasar)**
+- [x] **Step 2.5: Correr Ruff sobre el repo vacío (debe pasar)**
 
 ```bash
 uv run ruff check .
@@ -319,7 +319,7 @@ uv run ruff format --check .
 
 Expected: ambos salen sin errores (no hay código aún).
 
-- [ ] **Step 2.6: Commit**
+- [x] **Step 2.6: Commit**
 
 ```bash
 git add pyproject.toml .pre-commit-config.yaml
@@ -342,7 +342,7 @@ git commit -m "chore: configure ruff, mypy --strict, and pre-commit"
 - Create: `docker/docker-compose.yml`
 - Create: `Makefile`
 
-- [ ] **Step 3.1: Crear `docker/docker-compose.yml`**
+- [x] **Step 3.1: Crear `docker/docker-compose.yml`**
 
 ```yaml
 services:
@@ -399,7 +399,7 @@ volumes:
   redis-data:
 ```
 
-- [ ] **Step 3.2: Crear `Makefile`**
+- [x] **Step 3.2: Crear `Makefile`**
 
 ```make
 .PHONY: up down restart logs reset psql redis-cli qdrant-ui install fmt lint typecheck test ci
@@ -448,7 +448,7 @@ test:
 ci: lint typecheck test
 ```
 
-- [ ] **Step 3.3: Levantar la infra**
+- [x] **Step 3.3: Levantar la infra**
 
 ```bash
 make up
@@ -462,18 +462,18 @@ docker compose -f docker/docker-compose.yml ps
 
 Debe mostrar `postgres`, `qdrant`, `redis` todos `healthy`.
 
-- [ ] **Step 3.4: Verificar Qdrant**
+- [x] **Step 3.4: Verificar Qdrant**
 
 Abrir http://localhost:6333/dashboard — debe cargar la UI web de Qdrant. Esta UI la vas a usar en Semana 2 para inspeccionar colecciones.
 
-- [ ] **Step 3.5: Verificar Postgres**
+- [x] **Step 3.5: Verificar Postgres**
 
 ```bash
 make psql
 # dentro: \l  (listar DBs) → debe aparecer "shopping". \q para salir.
 ```
 
-- [ ] **Step 3.6: Commit**
+- [x] **Step 3.6: Commit**
 
 ```bash
 git add docker/docker-compose.yml Makefile
