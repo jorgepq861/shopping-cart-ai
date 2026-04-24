@@ -1653,7 +1653,7 @@ git commit -m "feat(infra): SQLAlchemy 2 async + Alembic init + Product model"
 **Files:**
 - Create: `migrations/versions/0001_create_products.py` (autogenerado + revisado)
 
-- [ ] **Step 11.1: Generar la migración**
+- [x] **Step 11.1: Generar la migración**
 
 ```bash
 uv run alembic revision --autogenerate -m "create products table"
@@ -1661,11 +1661,11 @@ uv run alembic revision --autogenerate -m "create products table"
 
 Esto crea un archivo nuevo en `migrations/versions/` con prefijo tipo `<hash>_create_products_table.py`.
 
-- [ ] **Step 11.2: Renombrar para consistencia (opcional pero recomendado)**
+- [x] **Step 11.2: Renombrar para consistencia (opcional pero recomendado)**
 
 Renombrar el archivo a `0001_create_products.py`. Abrirlo y verificar que contiene `op.create_table("products", ...)` con las columnas correctas.
 
-- [ ] **Step 11.3: Aplicar la migración**
+- [x] **Step 11.3: Aplicar la migración**
 
 ```bash
 uv run alembic upgrade head
@@ -1673,7 +1673,7 @@ uv run alembic upgrade head
 
 Expected: `Running upgrade  -> 0001, create products table`.
 
-- [ ] **Step 11.4: Verificar en Postgres**
+- [x] **Step 11.4: Verificar en Postgres**
 
 ```bash
 make psql
@@ -1685,7 +1685,7 @@ make psql
 \q
 ```
 
-- [ ] **Step 11.5: Commit**
+- [x] **Step 11.5: Commit**
 
 ```bash
 git add migrations/versions/0001_create_products.py
