@@ -165,7 +165,8 @@ addopts = "-ra --strict-markers"
 ```bash
 mkdir -p src/shopping_copilot/{domain,application,agents,infrastructure/{llm,embeddings,catalog,observability},api/routers,observability,guardrails} \
          tests/{unit/domain,unit/application,integration,contracts} \
-         scripts ui docker migrations/versions docs/{progress,superpowers/plans,superpowers/specs,learning-journal}
+         scripts ui docker docs/{progress,superpowers/plans,superpowers/specs,learning-journal}
+# Nota: `migrations/` NO se pre-crea — Alembic lo crea con `alembic init` en Task 10.
 
 # archivos __init__.py vacíos para que Python reconozca los paquetes
 find src tests -type d -exec touch {}/__init__.py \;
@@ -1504,13 +1505,13 @@ git commit -m "feat(infra): VoyageAdapter implementing EmbeddingsPort"
 - Create: `migrations/script.py.mako`
 - Create: `src/shopping_copilot/infrastructure/catalog/models.py` (SQLAlchemy models)
 
-- [ ] **Step 10.1: Añadir dependencias**
+- [x] **Step 10.1: Añadir dependencias**
 
 ```bash
 uv add "sqlalchemy[asyncio]>=2.0" asyncpg alembic
 ```
 
-- [ ] **Step 10.2: Inicializar Alembic**
+- [x] **Step 10.2: Inicializar Alembic**
 
 ```bash
 uv run alembic init -t async migrations
@@ -1518,7 +1519,7 @@ uv run alembic init -t async migrations
 
 Esto crea `alembic.ini` y `migrations/` con `env.py`, `script.py.mako`, `versions/`.
 
-- [ ] **Step 10.3: Editar `alembic.ini` — dejar vacía la URL (la inyectaremos desde env)**
+- [x] **Step 10.3: Editar `alembic.ini` — dejar vacía la URL (la inyectaremos desde env)**
 
 Buscar la línea `sqlalchemy.url = ...` y dejarla en blanco:
 
@@ -1526,7 +1527,7 @@ Buscar la línea `sqlalchemy.url = ...` y dejarla en blanco:
 sqlalchemy.url =
 ```
 
-- [ ] **Step 10.4: Crear `src/shopping_copilot/infrastructure/catalog/models.py`**
+- [x] **Step 10.4: Crear `src/shopping_copilot/infrastructure/catalog/models.py`**
 
 ```python
 """SQLAlchemy declarative models for the catalog."""
@@ -1554,10 +1555,10 @@ class ProductRow(Base):
     price_currency: Mapped[str] = mapped_column(String(3), nullable=False, default="USD")
     stock: Mapped[int] = mapped_column(nullable=False, default=0)
     rating_avg: Mapped[float] = mapped_column(nullable=False, default=0.0)
-    specs: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)
+    specs: Mapped[dict[str, str]] = mapped_column(JSON, nullable=False, default=dict)
 ```
 
-- [ ] **Step 10.5: Editar `migrations/env.py` para leer el DSN desde settings y conocer los modelos**
+- [x] **Step 10.5: Editar `migrations/env.py` para leer el DSN desde settings y conocer los modelos**
 
 Reemplazar el contenido de `migrations/env.py` con:
 
@@ -1624,7 +1625,7 @@ else:
     run_migrations_online()
 ```
 
-- [ ] **Step 10.6: Verificar que Alembic se conecta**
+- [x] **Step 10.6: Verificar que Alembic se conecta**
 
 (Asegúrate de que Postgres está corriendo vía `make up` y que `.env` tiene `POSTGRES_DSN` correcto.)
 
@@ -1634,7 +1635,7 @@ uv run alembic current
 
 Expected: imprime `(no output)` pero sin error → conectó y no hay migraciones aplicadas.
 
-- [ ] **Step 10.7: Commit**
+- [x] **Step 10.7: Commit**
 
 ```bash
 git add pyproject.toml uv.lock alembic.ini migrations/ src/shopping_copilot/infrastructure/catalog/models.py
