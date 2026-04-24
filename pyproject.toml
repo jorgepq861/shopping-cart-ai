@@ -66,6 +66,8 @@ strict = true
 warn_unreachable = true
 warn_unused_ignores = true
 plugins = ["pydantic.mypy"]
+explicit_package_bases = true
+mypy_path = "src"
 exclude = ["migrations/"]
 
 [[tool.mypy.overrides]]

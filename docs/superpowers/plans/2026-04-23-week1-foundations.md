@@ -169,6 +169,9 @@ mkdir -p src/shopping_copilot/{domain,application,agents,infrastructure/{llm,emb
 
 # archivos __init__.py vacíos para que Python reconozca los paquetes
 find src tests -type d -exec touch {}/__init__.py \;
+
+# PEP 561: marcador py.typed para que mypy confíe en los tipos del paquete instalado
+touch src/shopping_copilot/py.typed
 ```
 
 Verificar: `ls src/shopping_copilot/domain/` devuelve `__init__.py`.
@@ -266,6 +269,10 @@ strict = true
 warn_unreachable = true
 warn_unused_ignores = true
 plugins = ["pydantic.mypy"]
+# src/ layout: evita "Source file found twice" al indicar a mypy
+# que los paquetes viven bajo src/ (no que src sea un paquete)
+explicit_package_bases = true
+mypy_path = "src"
 exclude = ["migrations/"]
 
 [[tool.mypy.overrides]]
@@ -790,12 +797,14 @@ git commit -m "feat(domain): Sku and Money value objects with TDD"
 - Create: `src/shopping_copilot/domain/entities.py`
 - Create: `tests/unit/domain/test_entities.py`
 
-- [ ] **Step 6.1: Escribir tests (rojo)**
+- [x] **Step 6.1: Escribir tests (rojo)**
 
 `tests/unit/domain/test_entities.py`:
 
 ```python
 from decimal import Decimal
+
+import pytest
 
 from shopping_copilot.domain.entities import Product
 from shopping_copilot.domain.value_objects import Money, Sku
@@ -834,7 +843,6 @@ class TestProduct:
         assert {p1, p2} == {p1}
 
     def test_negative_stock_raises(self) -> None:
-        import pytest
         with pytest.raises(ValueError, match="stock"):
             Product(
                 sku=Sku("LAP-001"),
@@ -848,7 +856,6 @@ class TestProduct:
             )
 
     def test_rating_out_of_range_raises(self) -> None:
-        import pytest
         with pytest.raises(ValueError, match="rating"):
             Product(
                 sku=Sku("LAP-001"),
@@ -862,7 +869,7 @@ class TestProduct:
             )
 ```
 
-- [ ] **Step 6.2: Correr tests (deben fallar)**
+- [x] **Step 6.2: Correr tests (deben fallar)**
 
 ```bash
 uv run pytest tests/unit/domain/test_entities.py -v
@@ -870,15 +877,18 @@ uv run pytest tests/unit/domain/test_entities.py -v
 
 Expected: import error.
 
-- [ ] **Step 6.3: Implementar `entities.py`**
+- [x] **Step 6.3: Implementar `entities.py`**
 
 ```python
 """Domain entities. Identity-based equality."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import Final
 
 from shopping_copilot.domain.value_objects import Money, Sku
+
+_MAX_RATING: Final = 5.0
 
 
 @dataclass(eq=False, slots=True)
@@ -898,9 +908,9 @@ class Product:
     def __post_init__(self) -> None:
         if self.stock < 0:
             raise ValueError(f"Product stock cannot be negative, got {self.stock}")
-        if not (0.0 <= self.rating_avg <= 5.0):
+        if not (0.0 <= self.rating_avg <= _MAX_RATING):
             raise ValueError(
-                f"Product rating must be in [0, 5], got {self.rating_avg}"
+                f"Product rating must be in [0, {_MAX_RATING}], got {self.rating_avg}"
             )
 
     def __eq__(self, other: object) -> bool:
@@ -912,7 +922,7 @@ class Product:
         return hash(self.sku)
 ```
 
-- [ ] **Step 6.4: Correr tests (deben pasar)**
+- [x] **Step 6.4: Correr tests (deben pasar)**
 
 ```bash
 uv run pytest tests/unit/domain/ -v
@@ -920,7 +930,7 @@ uv run pytest tests/unit/domain/ -v
 
 Expected: **17 passed** (11 del Task 5 + 6 nuevos).
 
-- [ ] **Step 6.5: Commit**
+- [x] **Step 6.5: Commit**
 
 ```bash
 git add src/shopping_copilot/domain/entities.py tests/unit/domain/test_entities.py
