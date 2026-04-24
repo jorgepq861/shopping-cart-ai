@@ -9,6 +9,7 @@ dependencies = [
     "anthropic>=0.97.0",
     "pydantic>=2.9",
     "pydantic-settings>=2.5",
+    "voyageai>=0.3.7",
 ]
 
 [build-system]
@@ -75,3 +76,8 @@ exclude = ["migrations/"]
 [[tool.mypy.overrides]]
 module = ["tests.*"]
 disallow_untyped_defs = false  # tests pueden tener fixtures sin tipar
+
+[[tool.mypy.overrides]]
+module = ["voyageai", "voyageai.*"]
+ignore_missing_imports = true
+implicit_reexport = true

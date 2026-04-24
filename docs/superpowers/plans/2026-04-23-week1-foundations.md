@@ -278,6 +278,13 @@ exclude = ["migrations/"]
 [[tool.mypy.overrides]]
 module = ["tests.*"]
 disallow_untyped_defs = false  # tests pueden tener fixtures sin tipar
+
+# Libs externas sin stubs PEP 561 o con re-exports implícitos.
+# Los tipos fuertes viven en el dominio/puertos; los adapters encapsulan el Any.
+[[tool.mypy.overrides]]
+module = ["voyageai", "voyageai.*"]
+ignore_missing_imports = true
+implicit_reexport = true
 ```
 
 - [x] **Step 2.3: Crear `.pre-commit-config.yaml`**
@@ -1344,13 +1351,13 @@ git commit -m "feat(infra): AnthropicAdapter implementing LLMPort + respx tests"
 - Create: `tests/unit/infrastructure/test_voyage_adapter.py`
 - Modify: `pyproject.toml` (agregar `voyageai`)
 
-- [ ] **Step 9.1: Añadir dependencia**
+- [x] **Step 9.1: Añadir dependencia**
 
 ```bash
 uv add voyageai
 ```
 
-- [ ] **Step 9.2: Escribir tests (rojo)**
+- [x] **Step 9.2: Escribir tests (rojo)**
 
 `tests/unit/infrastructure/test_voyage_adapter.py`:
 
@@ -1410,7 +1417,7 @@ def test_dimensions_property() -> None:
     assert adapter.dimensions == 512
 ```
 
-- [ ] **Step 9.3: Correr tests (rojo)**
+- [x] **Step 9.3: Correr tests (rojo)**
 
 ```bash
 uv run pytest tests/unit/infrastructure/test_voyage_adapter.py -v
@@ -1418,7 +1425,7 @@ uv run pytest tests/unit/infrastructure/test_voyage_adapter.py -v
 
 Expected: `ModuleNotFoundError`.
 
-- [ ] **Step 9.4: Implementar `voyage_adapter.py`**
+- [x] **Step 9.4: Implementar `voyage_adapter.py`**
 
 ```python
 """Voyage implementation of EmbeddingsPort."""
@@ -1466,7 +1473,7 @@ class VoyageAdapter:
         return list(result.embeddings)
 ```
 
-- [ ] **Step 9.5: Correr tests (verde)**
+- [x] **Step 9.5: Correr tests (verde)**
 
 ```bash
 uv run pytest tests/unit/infrastructure/ -v
@@ -1474,7 +1481,7 @@ uv run pytest tests/unit/infrastructure/ -v
 
 Expected: **6 passed** (3 Anthropic + 3 Voyage).
 
-- [ ] **Step 9.6: Commit**
+- [x] **Step 9.6: Commit**
 
 ```bash
 git add src/shopping_copilot/infrastructure/embeddings/voyage_adapter.py tests/unit/infrastructure/test_voyage_adapter.py pyproject.toml uv.lock
