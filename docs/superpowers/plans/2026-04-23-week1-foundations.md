@@ -622,7 +622,7 @@ git commit -m "feat(config): pydantic-settings with .env.example"
 - Create: `src/shopping_copilot/domain/value_objects.py`
 - Create: `tests/unit/domain/test_value_objects.py`
 
-- [ ] **Step 5.1: Escribir tests (rojo)**
+- [x] **Step 5.1: Escribir tests (rojo)**
 
 `tests/unit/domain/test_value_objects.py`:
 
@@ -687,7 +687,7 @@ class TestMoney:
             m.amount = Decimal("2")  # type: ignore[misc]
 ```
 
-- [ ] **Step 5.2: Correr los tests (deben fallar)**
+- [x] **Step 5.2: Correr los tests (deben fallar)**
 
 ```bash
 uv run pytest tests/unit/domain/test_value_objects.py -v
@@ -695,7 +695,7 @@ uv run pytest tests/unit/domain/test_value_objects.py -v
 
 Expected: `ModuleNotFoundError: No module named 'shopping_copilot.domain.value_objects'`.
 
-- [ ] **Step 5.3: Implementar `value_objects.py`**
+- [x] **Step 5.3: Implementar `value_objects.py`**
 
 ```python
 """Pure domain value objects. No framework dependencies."""
@@ -754,7 +754,7 @@ class Money:
         return f"{self.amount} {self.currency}"
 ```
 
-- [ ] **Step 5.4: Correr tests (deben pasar)**
+- [x] **Step 5.4: Correr tests (deben pasar)**
 
 ```bash
 uv run pytest tests/unit/domain/test_value_objects.py -v
@@ -762,7 +762,7 @@ uv run pytest tests/unit/domain/test_value_objects.py -v
 
 Expected: **11 passed**.
 
-- [ ] **Step 5.5: Typecheck**
+- [x] **Step 5.5: Typecheck**
 
 ```bash
 uv run mypy src/shopping_copilot/domain
@@ -770,7 +770,7 @@ uv run mypy src/shopping_copilot/domain
 
 Expected: `Success: no issues found`.
 
-- [ ] **Step 5.6: Commit**
+- [x] **Step 5.6: Commit**
 
 ```bash
 git add src/shopping_copilot/domain/value_objects.py tests/unit/domain/test_value_objects.py
