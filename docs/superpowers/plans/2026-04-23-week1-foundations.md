@@ -950,7 +950,7 @@ git commit -m "feat(domain): Product entity with identity-based equality"
 **Files:**
 - Create: `src/shopping_copilot/domain/ports.py`
 
-- [ ] **Step 7.1: Crear `ports.py`**
+- [x] **Step 7.1: Crear `ports.py`**
 
 ```python
 """Domain ports (Protocols). Framework-agnostic interfaces."""
@@ -1085,7 +1085,7 @@ class CatalogPort(Protocol):
         ...
 ```
 
-- [ ] **Step 7.2: Typecheck**
+- [x] **Step 7.2: Typecheck**
 
 ```bash
 uv run mypy src/shopping_copilot/domain
@@ -1093,7 +1093,7 @@ uv run mypy src/shopping_copilot/domain
 
 Expected: `Success`.
 
-- [ ] **Step 7.3: Smoke test — el módulo se importa**
+- [x] **Step 7.3: Smoke test — el módulo se importa**
 
 ```bash
 uv run python -c "from shopping_copilot.domain.ports import LLMPort, EmbeddingsPort, VectorStorePort, CatalogPort; print('ports ok')"
@@ -1101,7 +1101,7 @@ uv run python -c "from shopping_copilot.domain.ports import LLMPort, EmbeddingsP
 
 Expected: `ports ok`.
 
-- [ ] **Step 7.4: Commit**
+- [x] **Step 7.4: Commit**
 
 ```bash
 git add src/shopping_copilot/domain/ports.py
