@@ -1123,21 +1123,21 @@ git commit -m "feat(domain): ports (LLM, Embeddings, VectorStore, Catalog)"
 - Create: `tests/unit/infrastructure/test_anthropic_adapter.py`
 - Modify: `pyproject.toml` (agregar `anthropic` + `respx`)
 
-- [ ] **Step 8.1: Añadir dependencias**
+- [x] **Step 8.1: Añadir dependencias**
 
 ```bash
 uv add anthropic
 uv add --dev respx
 ```
 
-- [ ] **Step 8.2: Crear carpeta de test y `__init__.py`**
+- [x] **Step 8.2: Crear carpeta de test y `__init__.py`**
 
 ```bash
 mkdir -p tests/unit/infrastructure
 touch tests/unit/infrastructure/__init__.py
 ```
 
-- [ ] **Step 8.3: Escribir tests (rojo)**
+- [x] **Step 8.3: Escribir tests (rojo)**
 
 `tests/unit/infrastructure/test_anthropic_adapter.py`:
 
@@ -1226,7 +1226,7 @@ async def test_send_messages_can_select_haiku(adapter: AnthropicAdapter) -> None
     assert captured["model"] == "claude-haiku-4-5-20251001"
 ```
 
-- [ ] **Step 8.4: Correr tests (rojo)**
+- [x] **Step 8.4: Correr tests (rojo)**
 
 ```bash
 uv run pytest tests/unit/infrastructure/test_anthropic_adapter.py -v
@@ -1234,7 +1234,7 @@ uv run pytest tests/unit/infrastructure/test_anthropic_adapter.py -v
 
 Expected: `ModuleNotFoundError`.
 
-- [ ] **Step 8.5: Implementar `anthropic_adapter.py`**
+- [x] **Step 8.5: Implementar `anthropic_adapter.py`**
 
 `src/shopping_copilot/infrastructure/llm/anthropic_adapter.py`:
 
@@ -1307,7 +1307,7 @@ class AnthropicAdapter:
         )
 ```
 
-- [ ] **Step 8.6: Correr tests (deben pasar)**
+- [x] **Step 8.6: Correr tests (deben pasar)**
 
 ```bash
 uv run pytest tests/unit/infrastructure/test_anthropic_adapter.py -v
@@ -1315,7 +1315,7 @@ uv run pytest tests/unit/infrastructure/test_anthropic_adapter.py -v
 
 Expected: **3 passed**.
 
-- [ ] **Step 8.7: Typecheck**
+- [x] **Step 8.7: Typecheck**
 
 ```bash
 uv run mypy src/shopping_copilot/infrastructure
@@ -1323,7 +1323,7 @@ uv run mypy src/shopping_copilot/infrastructure
 
 Expected: `Success`.
 
-- [ ] **Step 8.8: Commit**
+- [x] **Step 8.8: Commit**
 
 ```bash
 git add src/shopping_copilot/infrastructure/llm/anthropic_adapter.py tests/unit/infrastructure/test_anthropic_adapter.py pyproject.toml uv.lock
