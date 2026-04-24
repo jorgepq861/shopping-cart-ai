@@ -444,6 +444,15 @@ redis-cli:
 qdrant-ui:
 	@echo "Open http://localhost:6333/dashboard"
 
+test-db-create:
+	docker exec sc-postgres psql -U shopping -c "CREATE DATABASE shopping_test;" || echo "already exists"
+
+test-db-migrate:
+	POSTGRES_DSN="postgresql+asyncpg://shopping:shopping@localhost:5432/shopping_test" \
+	  uv run alembic upgrade head
+
+test-db-setup: test-db-create test-db-migrate
+
 install:
 	uv sync
 
@@ -539,6 +548,7 @@ LANGCHAIN_PROJECT=shopping-copilot-dev
 
 # === Infra local ===
 POSTGRES_DSN=postgresql+asyncpg://shopping:shopping@localhost:5432/shopping
+POSTGRES_TEST_DSN=postgresql+asyncpg://shopping:shopping@localhost:5432/shopping_test
 REDIS_URL=redis://localhost:6379/0
 QDRANT_URL=http://localhost:6333
 
@@ -587,6 +597,7 @@ class Settings(BaseSettings):
 
     # Infra
     postgres_dsn: str
+    postgres_test_dsn: str | None = None   # separate DB for pytest; optional (CI-friendly)
     redis_url: str = "redis://localhost:6379/0"
     qdrant_url: str = "http://localhost:6333"
 
@@ -1706,7 +1717,7 @@ git commit -m "feat(infra): initial migration creating products table"
 - Create: `tests/integration/test_postgres_catalog.py`
 - Create: `tests/conftest.py` (fixture de engine)
 
-- [ ] **Step 12.1: Crear `tests/conftest.py`**
+- [x] **Step 12.1: Crear `tests/conftest.py`**
 
 ```python
 """Shared pytest fixtures."""
@@ -1722,7 +1733,15 @@ from shopping_copilot.config import get_settings
 
 @pytest.fixture(scope="session")
 def postgres_dsn() -> str:
-    return get_settings().postgres_dsn
+    """Use the dedicated test DB to avoid touching dev/app data.
+
+    Prefer `POSTGRES_TEST_DSN` if set, else derive from main DSN by appending `_test`.
+    Run `make test-db-setup` once to create & migrate the test DB.
+    """
+    s = get_settings()
+    if s.postgres_test_dsn:
+        return s.postgres_test_dsn
+    return s.postgres_dsn.replace("/shopping", "/shopping_test")
 
 
 @pytest.fixture
@@ -1737,7 +1756,7 @@ async def session_factory(engine: AsyncEngine) -> async_sessionmaker[AsyncSessio
     return async_sessionmaker(engine, expire_on_commit=False)
 ```
 
-- [ ] **Step 12.2: Crear `src/shopping_copilot/infrastructure/catalog/postgres_catalog.py`**
+- [x] **Step 12.2: Crear `src/shopping_copilot/infrastructure/catalog/postgres_catalog.py`**
 
 ```python
 """Postgres adapter for CatalogPort."""
@@ -1808,7 +1827,7 @@ class PostgresCatalogAdapter:
             return {Sku(s) for s in result.all()}
 ```
 
-- [ ] **Step 12.3: Crear tests de integración**
+- [x] **Step 12.3: Crear tests de integración**
 
 `tests/integration/test_postgres_catalog.py`:
 
@@ -1826,9 +1845,11 @@ from shopping_copilot.infrastructure.catalog.postgres_catalog import PostgresCat
 
 
 @pytest.fixture
-async def _seed(session_factory: async_sessionmaker[AsyncSession]) -> None:
+async def _seed(
+    session_factory: async_sessionmaker[AsyncSession],
+) -> AsyncGenerator[None, None]:
+    # Setup: clean + insert
     async with session_factory() as s:
-        # Clean
         await s.execute(ProductRow.__table__.delete())
         s.add_all([
             ProductRow(
@@ -1850,6 +1871,13 @@ async def _seed(session_factory: async_sessionmaker[AsyncSession]) -> None:
                 stock=10, rating_avg=4.3, specs={"storage": "128GB"},
             ),
         ])
+        await s.commit()
+
+    yield   # el test corre aquí
+
+    # Teardown: leave the table clean after the test
+    async with session_factory() as s:
+        await s.execute(ProductRow.__table__.delete())
         await s.commit()
 
 
@@ -1891,7 +1919,7 @@ async def test_skus_exist(
     assert existing == {Sku("LAP-001")}
 ```
 
-- [ ] **Step 12.4: Correr tests (debe conectar a Postgres real vía `.env`)**
+- [x] **Step 12.4: Correr tests (debe conectar a Postgres real vía `.env`)**
 
 ```bash
 uv run pytest tests/integration/test_postgres_catalog.py -v
@@ -1899,7 +1927,7 @@ uv run pytest tests/integration/test_postgres_catalog.py -v
 
 Expected: **4 passed**.
 
-- [ ] **Step 12.5: Commit**
+- [x] **Step 12.5: Commit**
 
 ```bash
 git add src/shopping_copilot/infrastructure/catalog/postgres_catalog.py tests/conftest.py tests/integration/

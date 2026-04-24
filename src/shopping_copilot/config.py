@@ -36,6 +36,7 @@ class Settings(BaseSettings):
 
     # Infra
     postgres_dsn: str
+    postgres_test_dsn: str | None = None
     redis_url: str = "redis://localhost:6379/0"
     qdrant_url: str = "http://localhost:6333"
 

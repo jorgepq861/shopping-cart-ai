@@ -1,4 +1,4 @@
-.PHONY: up down restart logs reset psql redis-cli qdrant-ui install fmt lint typecheck test ci
+.PHONY: up down restart logs reset psql redis-cli qdrant-ui install fmt lint typecheck test ci test-db-create test-db-migrate test-db-setup
 
 up:
 	docker compose -f docker/docker-compose.yml up -d
@@ -42,3 +42,13 @@ test:
 	uv run pytest -v
 
 ci: lint typecheck test
+
+# al final del Makefile
+test-db-create:
+	docker exec -it sc-postgres psql -U shopping -c "CREATE DATABASE shopping_test;" || echo "already exists"
+
+test-db-migrate:
+	POSTGRES_DSN="postgresql+asyncpg://shopping:shopping@localhost:5432/shopping_test" \
+	  uv run alembic upgrade head
+
+test-db-setup: test-db-create test-db-migrate

@@ -22,7 +22,7 @@ Que el agente haga **búsqueda semántica híbrida** sobre un catálogo real (20
 | 1 | Extender dominio para RAG | Añadir value objects: `Chunk`, `ScoredDoc`, `RetrievalResult` |
 | 2 | Ampliar seed a 200 productos + reseñas + FAQs | Haiku genera 3 categorías × ~67 productos + 3-8 reseñas/producto + 30 FAQs. Persist en Postgres (nuevas tablas `reviews`, `faqs`) |
 | 3 | Alembic migration: reviews + faqs + rag_ingestion_log | 3 tablas nuevas, índices básicos |
-| 4 | `QdrantAdapter` implementando `VectorStorePort` | Cliente async, upsert, search con filters. Tests con Qdrant real (integration) |
+| 4 | `QdrantAdapter` implementando `VectorStorePort` | Cliente async, upsert, search con filters. Tests con **testcontainers.qdrant** (container efímero por session) — aprovechamos el cambio de infra para introducir el patrón. |
 | 5 | Script `setup_qdrant`: crear collection + payload indexes + text index | Idempotente. Reusable en CI. |
 | 6 | `VoyageRerankerAdapter` implementando `RerankerPort` | Cross-encoder `rerank-2-lite`. Tests mocked. |
 | 7 | Chunking utilities por tipo de documento | `chunk_spec`, `chunk_review`, `chunk_faq`. Pure functions, TDD. |
