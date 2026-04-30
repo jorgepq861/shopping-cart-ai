@@ -1946,7 +1946,7 @@ git commit -m "feat(infra): PostgresCatalogAdapter + integration tests"
 **Files:**
 - Create: `scripts/seed.py`
 
-- [ ] **Step 13.1: Crear `scripts/seed.py`**
+- [x] **Step 13.1: Crear `scripts/seed.py`**
 
 ```python
 """Seed the catalog with synthetic laptops using Haiku.
@@ -1960,9 +1960,10 @@ from __future__ import annotations
 
 import asyncio
 import json
+import re
 from decimal import Decimal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
@@ -1972,7 +1973,26 @@ from shopping_copilot.infrastructure.catalog.models import ProductRow
 from shopping_copilot.infrastructure.llm.anthropic_adapter import AnthropicAdapter
 
 
+def _extract_json(text: str) -> str:
+    """Robustly extract a JSON object from an LLM response.
+
+    Handles markdown-fenced (```json ... ```) and prose-prefixed responses.
+    """
+    text = text.strip()
+    fenced = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", text, re.DOTALL)
+    if fenced:
+        return fenced.group(1)
+    obj = re.search(r"\{.*\}", text, re.DOTALL)
+    if obj:
+        return obj.group(0)
+    return text
+
+
 class LaptopSpec(BaseModel):
+    # LLMs often emit numeric values (weight_kg=1.5) that we want as strings in `specs`.
+    # `coerce_numbers_to_str` converts int/float to str automatically during validation.
+    model_config = ConfigDict(coerce_numbers_to_str=True)
+
     sku: str = Field(pattern=r"^LAP-\d{3}$")
     name: str
     brand: str
@@ -2001,7 +2021,8 @@ USER_PROMPT = """Generate exactly 20 laptops with:
 - rating_avg: float 3.5-5.0
 - specs: dict with keys like cpu, ram, storage, display, weight_kg
 
-Return JSON: {"items": [ { ... }, ... ] }
+Return ONLY valid JSON in this exact shape, with no preamble, no explanation, no markdown fences:
+{"items": [ { ... }, ... ] }
 """
 
 
@@ -2024,7 +2045,7 @@ async def main() -> None:
     )
     print(f"Tokens in={resp.input_tokens} out={resp.output_tokens}")
 
-    data = json.loads(resp.content)
+    data = json.loads(_extract_json(resp.content))
     parsed = LaptopList(**data)
     print(f"Parsed {len(parsed.items)} laptops.")
 
@@ -2064,7 +2085,7 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-- [ ] **Step 13.2: Correr el seed** (necesitas key válida de Anthropic en `.env`)
+- [x] **Step 13.2: Correr el seed** (necesitas key válida de Anthropic en `.env`)
 
 ```bash
 uv run python -m scripts.seed
@@ -2080,7 +2101,7 @@ Seed done.
 
 Costo estimado: < $0.02.
 
-- [ ] **Step 13.3: Verificar en Postgres**
+- [x] **Step 13.3: Verificar en Postgres**
 
 ```bash
 make psql
@@ -2091,7 +2112,7 @@ SELECT sku, name, brand, price_amount FROM products ORDER BY sku;
 
 Debe mostrar 20 filas `LAP-001` ... `LAP-020`.
 
-- [ ] **Step 13.4: Re-correr para verificar idempotencia**
+- [x] **Step 13.4: Re-correr para verificar idempotencia**
 
 ```bash
 uv run python -m scripts.seed
@@ -2100,7 +2121,7 @@ SELECT COUNT(*) FROM products;
 # debe seguir siendo 20
 ```
 
-- [ ] **Step 13.5: Commit**
+- [x] **Step 13.5: Commit**
 
 ```bash
 git add scripts/seed.py
