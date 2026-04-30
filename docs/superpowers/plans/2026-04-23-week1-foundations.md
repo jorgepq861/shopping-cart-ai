@@ -2643,7 +2643,7 @@ git commit -m "feat(obs): wire LangSmith tracing via wrap_anthropic (zero custom
 **Files:**
 - Create: `.github/workflows/ci.yml`
 
-- [ ] **Step 19.1: Crear workflow**
+- [x] **Step 19.1: Crear workflow**
 
 ```yaml
 name: CI
@@ -2714,7 +2714,7 @@ jobs:
         run: uv run pytest -v
 ```
 
-- [ ] **Step 19.2: Crear un repo vacío en GitHub y pushear**
+- [x] **Step 19.2: Crear un repo vacío en GitHub y pushear**
 
 (Sólo si aún no existe el repo remoto — en la UI de GitHub, crear uno, luego:)
 
@@ -2723,11 +2723,11 @@ git remote add origin git@github.com:<tu-usuario>/agentic-ai.git
 git push -u origin main
 ```
 
-- [ ] **Step 19.3: Verificar CI en GitHub**
+- [x] **Step 19.3: Verificar CI en GitHub**
 
 Ir a la pestaña **Actions** del repo — el workflow debe estar corriendo. Si falla, revisar logs y ajustar.
 
-- [ ] **Step 19.4: Commit**
+- [x] **Step 19.4: Commit**
 
 ```bash
 git add .github/workflows/ci.yml
@@ -2741,40 +2741,40 @@ git push
 
 Comprueba cada ítem antes de cerrar la semana. Cualquier no cumplido → crear micro-task y resolverlo.
 
-- [ ] **20.1 Funcional end-to-end**
+- [x] **20.1 Funcional end-to-end**
   - [ ] `make up` levanta Postgres + Qdrant + Redis en verde
   - [ ] `uv run uvicorn shopping_copilot.api.main:app` levanta `/health` y `/chat`
   - [ ] `uv run streamlit run ui/app.py` abre UI en 8501
   - [ ] Una pregunta a Streamlit llega a Claude y vuelve
 
-- [ ] **20.2 Tests**
+- [x] **20.2 Tests**
   - [ ] `uv run pytest -v` pasa todo (~ 20 tests)
   - [ ] Dominio: VOs + Product entity
   - [ ] Infra: Anthropic adapter mocked + Voyage adapter mocked
   - [ ] Integración: Postgres catalog
 
-- [ ] **20.3 Calidad**
+- [x] **20.3 Calidad**
   - [ ] `uv run ruff check .` limpio
   - [ ] `uv run ruff format --check .` limpio
   - [ ] `uv run mypy src` limpio
 
-- [ ] **20.4 Datos**
+- [x] **20.4 Datos**
   - [ ] 20 laptops en Postgres (`SELECT COUNT(*) FROM products;` → 20)
   - [ ] Seed es idempotente (re-ejecución no duplica)
 
-- [ ] **20.5 Observabilidad**
+- [x] **20.5 Observabilidad**
   - [ ] Una llamada real a `/chat` aparece como trace en LangSmith UI (proyecto `shopping-copilot-dev`)
   - [ ] Se ven tokens y costo por run
 
-- [ ] **20.6 CI**
+- [x] **20.6 CI**
   - [ ] El último push a `main` muestra check verde en GitHub Actions
 
-- [ ] **20.7 Documentación mínima**
+- [x] **20.7 Documentación mínima**
   - [ ] README explica cómo arrancar
   - [ ] `.env.example` refleja todas las env vars reales
   - [ ] Tracker `docs/progress/plan.html` con todas las casillas de Semana 1 marcadas ✓
 
-- [ ] **20.8 Commit de cierre**
+- [x] **20.8 Commit de cierre**
 
 ```bash
 git tag -a week1-done -m "Fase 1 — Semana 1 completa"
