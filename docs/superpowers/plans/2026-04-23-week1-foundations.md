@@ -2232,7 +2232,7 @@ git commit -m "feat(api): FastAPI skeleton + /health and /ready probes"
 - Create: `src/shopping_copilot/api/schemas.py`
 - Create: `src/shopping_copilot/api/deps.py`
 
-- [ ] **Step 15.1: Crear `schemas.py`**
+- [x] **Step 15.1: Crear `schemas.py`**
 
 ```python
 """Pydantic DTOs for API I/O."""
@@ -2257,7 +2257,7 @@ class ChatResponse(BaseModel):
     output_tokens: int
 ```
 
-- [ ] **Step 15.2: Crear `deps.py`**
+- [x] **Step 15.2: Crear `deps.py`**
 
 ```python
 """Dependency injection for FastAPI routes.
@@ -2301,7 +2301,7 @@ def get_embeddings() -> EmbeddingsPort:
     return _build_embeddings(get_settings())
 ```
 
-- [ ] **Step 15.3: Typecheck**
+- [x] **Step 15.3: Typecheck**
 
 ```bash
 uv run mypy src/shopping_copilot
@@ -2309,7 +2309,7 @@ uv run mypy src/shopping_copilot
 
 Expected: `Success`.
 
-- [ ] **Step 15.4: Commit**
+- [x] **Step 15.4: Commit**
 
 ```bash
 git add src/shopping_copilot/api/schemas.py src/shopping_copilot/api/deps.py
