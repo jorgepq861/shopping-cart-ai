@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import AsyncGenerator
+from urllib.parse import urlparse, urlunparse
 
 import pytest
 from sqlalchemy.ext.asyncio import (
@@ -21,9 +22,10 @@ def postgres_dsn() -> str:
     s = get_settings()
     if s.postgres_test_dsn:
         return s.postgres_test_dsn
-    # Fallback: derive test DSN from main DSN
-    # (e.g. ".../shopping"  ->  ".../shopping_test")
-    return s.postgres_dsn.replace("/shopping", "/shopping_test")
+    # Fallback: derive test DSN by replacing ONLY the path component
+    # (str.replace would also clobber the username "shopping" -> "shopping_test").
+    parsed = urlparse(s.postgres_dsn)
+    return urlunparse(parsed._replace(path="/shopping_test"))
 
 
 @pytest.fixture

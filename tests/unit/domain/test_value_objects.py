@@ -49,7 +49,7 @@ class TestMoney:
 
     def test_money_addition_different_currencies_raises(self) -> None:
         a, b = Money(Decimal("10"), "USD"), Money(Decimal("5"), "EUR")
-        with pytest.raises(ValueError, match="currency"):
+        with pytest.raises(ValueError, match="currenc"):  # matches "currency" and "currencies"
             _ = a + b
 
     def test_money_is_immutable(self) -> None:
