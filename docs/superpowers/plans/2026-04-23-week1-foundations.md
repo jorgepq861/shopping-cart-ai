@@ -2142,13 +2142,13 @@ git commit -m "feat(seed): generate 20 synthetic laptops via Haiku (idempotent)"
 - Create: `src/shopping_copilot/api/routers/health.py`
 - Modify: `pyproject.toml` (agregar `fastapi`, `uvicorn`)
 
-- [ ] **Step 14.1: Añadir dependencias**
+- [x] **Step 14.1: Añadir dependencias**
 
 ```bash
 uv add "fastapi>=0.115" "uvicorn[standard]>=0.31"
 ```
 
-- [ ] **Step 14.2: Crear `health.py`**
+- [x] **Step 14.2: Crear `health.py`**
 
 ```python
 """Liveness and readiness probes."""
@@ -2169,7 +2169,7 @@ def ready() -> dict[str, str]:
     return {"status": "ready"}
 ```
 
-- [ ] **Step 14.3: Crear `main.py`**
+- [x] **Step 14.3: Crear `main.py`**
 
 ```python
 """FastAPI application factory."""
@@ -2193,7 +2193,7 @@ def create_app() -> FastAPI:
 app = create_app()
 ```
 
-- [ ] **Step 14.4: Levantar el servidor**
+- [x] **Step 14.4: Levantar el servidor**
 
 ```bash
 uv run uvicorn shopping_copilot.api.main:app --reload --port 8000
@@ -2201,7 +2201,7 @@ uv run uvicorn shopping_copilot.api.main:app --reload --port 8000
 
 Dejarlo corriendo en una terminal.
 
-- [ ] **Step 14.5: Probar en otra terminal**
+- [x] **Step 14.5: Probar en otra terminal**
 
 ```bash
 curl http://localhost:8000/health
@@ -2212,7 +2212,7 @@ curl http://localhost:8000/ready
 
 Abrir http://localhost:8000/docs — debe mostrar Swagger UI con los dos endpoints.
 
-- [ ] **Step 14.6: Commit**
+- [x] **Step 14.6: Commit**
 
 ```bash
 git add src/shopping_copilot/api/main.py src/shopping_copilot/api/routers/health.py pyproject.toml uv.lock
