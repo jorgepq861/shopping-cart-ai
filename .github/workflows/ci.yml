@@ -41,7 +41,17 @@ jobs:
       - name: Sync deps
         run: uv sync
 
-      - name: Alembic upgrade
+      - name: Alembic upgrade (main DB)
+        run: uv run alembic upgrade head
+
+      - name: Create test DB
+        env:
+          PGPASSWORD: shopping
+        run: psql -h localhost -U shopping -d shopping -c "CREATE DATABASE shopping_test;"
+
+      - name: Alembic upgrade (test DB)
+        env:
+          POSTGRES_DSN: postgresql+asyncpg://shopping:shopping@localhost:5432/shopping_test
         run: uv run alembic upgrade head
 
       - name: Lint
