@@ -2426,13 +2426,13 @@ git commit -m "feat(api): minimal /chat endpoint wired to Anthropic"
 - Create: `ui/app.py`
 - Modify: `pyproject.toml` (añadir `streamlit`, `httpx`)
 
-- [ ] **Step 17.1: Añadir dependencias**
+- [x] **Step 17.1: Añadir dependencias**
 
 ```bash
 uv add streamlit httpx
 ```
 
-- [ ] **Step 17.2: Crear `ui/app.py`**
+- [x] **Step 17.2: Crear `ui/app.py`**
 
 ```python
 """Streamlit UI for the shopping copilot — Fase 1a."""
@@ -2487,7 +2487,7 @@ with st.sidebar:
         st.rerun()
 ```
 
-- [ ] **Step 17.3: Correr Streamlit**
+- [x] **Step 17.3: Correr Streamlit**
 
 ```bash
 uv run streamlit run ui/app.py
@@ -2495,7 +2495,7 @@ uv run streamlit run ui/app.py
 
 Se abre el navegador en http://localhost:8501. Escribir "hola" y probar que Claude responde.
 
-- [ ] **Step 17.4: Commit**
+- [x] **Step 17.4: Commit**
 
 ```bash
 git add ui/app.py pyproject.toml uv.lock
