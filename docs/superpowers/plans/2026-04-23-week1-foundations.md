@@ -541,10 +541,13 @@ LLM_MODEL_HAIKU=claude-haiku-4-5-20251001
 EMBEDDINGS_MODEL=voyage-3-lite
 
 # === LangSmith (tracing) ===
-LANGCHAIN_TRACING_V2=true
-LANGCHAIN_ENDPOINT=https://api.smith.langchain.com
-LANGCHAIN_API_KEY=lsv2_xxx
-LANGCHAIN_PROJECT=shopping-copilot-dev
+# IMPORTANTE: el endpoint depende de tu región. Verificalo en
+# smith.langchain.com → Settings → "View setup snippet". Algunas cuentas
+# están en https://aws.api.smith.langchain.com (regional AWS) en vez del global.
+LANGSMITH_TRACING=true
+LANGSMITH_ENDPOINT=https://api.smith.langchain.com
+LANGSMITH_API_KEY=lsv2_xxx
+LANGSMITH_PROJECT=shopping-copilot-dev
 
 # === Infra local ===
 POSTGRES_DSN=postgresql+asyncpg://shopping:shopping@localhost:5432/shopping
@@ -589,11 +592,11 @@ class Settings(BaseSettings):
     llm_model_haiku: str = "claude-haiku-4-5-20251001"
     embeddings_model: str = "voyage-3-lite"
 
-    # LangSmith
-    langchain_tracing_v2: bool = False
-    langchain_endpoint: str = "https://api.smith.langchain.com"
-    langchain_api_key: SecretStr | None = None
-    langchain_project: str = "shopping-copilot-dev"
+    # LangSmith (modern naming, dual-read for legacy)
+    langsmith_tracing: bool = False
+    langsmith_endpoint: str = "https://api.smith.langchain.com"
+    langsmith_api_key: SecretStr | None = None
+    langsmith_project: str = "shopping-copilot-dev"
 
     # Infra
     postgres_dsn: str
@@ -2515,13 +2518,13 @@ git commit -m "feat(ui): streamlit chat consuming /chat endpoint"
 - Modify: `src/shopping_copilot/infrastructure/llm/anthropic_adapter.py` (envolver cliente con `wrap_anthropic`)
 - Create: `src/shopping_copilot/infrastructure/observability/langsmith_setup.py`
 
-- [ ] **Step 18.1: Añadir dependencia**
+- [x] **Step 18.1: Añadir dependencia**
 
 ```bash
 uv add langsmith
 ```
 
-- [ ] **Step 18.2: Crear `langsmith_setup.py`**
+- [x] **Step 18.2: Crear `langsmith_setup.py`**
 
 ```python
 """LangSmith configuration — env-var driven, zero-code."""
@@ -2533,19 +2536,20 @@ from shopping_copilot.config import get_settings
 
 
 def configure_langsmith() -> None:
-    """Populate os.environ so langchain/langsmith pick up tracing settings.
+    """Populate os.environ so langsmith/langchain pick up tracing settings.
 
     Call this ONCE at app startup, before any Anthropic/OpenAI client is created.
+    Uses the modern LANGSMITH_* naming; the langsmith SDK also reads these.
     """
     s = get_settings()
-    os.environ["LANGCHAIN_TRACING_V2"] = "true" if s.langchain_tracing_v2 else "false"
-    os.environ["LANGCHAIN_ENDPOINT"] = s.langchain_endpoint
-    if s.langchain_api_key:
-        os.environ["LANGCHAIN_API_KEY"] = s.langchain_api_key.get_secret_value()
-    os.environ["LANGCHAIN_PROJECT"] = s.langchain_project
+    os.environ["LANGSMITH_TRACING"] = "true" if s.langsmith_tracing else "false"
+    os.environ["LANGSMITH_ENDPOINT"] = s.langsmith_endpoint
+    if s.langsmith_api_key:
+        os.environ["LANGSMITH_API_KEY"] = s.langsmith_api_key.get_secret_value()
+    os.environ["LANGSMITH_PROJECT"] = s.langsmith_project
 ```
 
-- [ ] **Step 18.3: Envolver el cliente Anthropic en el adapter**
+- [x] **Step 18.3: Envolver el cliente Anthropic en el adapter**
 
 Editar `src/shopping_copilot/infrastructure/llm/anthropic_adapter.py` — modificar el `__init__`:
 
@@ -2570,7 +2574,7 @@ class AnthropicAdapter:
         self._model_haiku = model_haiku
 ```
 
-- [ ] **Step 18.4: Llamar a `configure_langsmith()` al arrancar la app**
+- [x] **Step 18.4: Llamar a `configure_langsmith()` al arrancar la app**
 
 Editar `src/shopping_copilot/api/main.py`:
 
@@ -2584,7 +2588,7 @@ def create_app() -> FastAPI:
     ...
 ```
 
-- [ ] **Step 18.5: Asegurar `.env` con LangSmith**
+- [x] **Step 18.5: Asegurar `.env` con LangSmith**
 
 Editar tu `.env` real (ya no el ejemplo) y poner:
 
@@ -2594,7 +2598,7 @@ LANGCHAIN_API_KEY=lsv2_<tu_key_real>
 LANGCHAIN_PROJECT=shopping-copilot-dev
 ```
 
-- [ ] **Step 18.6: Reiniciar uvicorn y disparar una llamada**
+- [x] **Step 18.6: Reiniciar uvicorn y disparar una llamada**
 
 ```bash
 # Detener el uvicorn con Ctrl+C y arrancar de nuevo para que lea la nueva env
@@ -2609,7 +2613,7 @@ curl -X POST http://localhost:8000/chat \
   -d '{"messages":[{"role":"user","content":"dime un chiste de programadores"}]}'
 ```
 
-- [ ] **Step 18.7: Verificar en LangSmith UI**
+- [x] **Step 18.7: Verificar en LangSmith UI**
 
 1. Abrir https://smith.langchain.com/
 2. Ir al workspace, seleccionar proyecto `shopping-copilot-dev`.
@@ -2620,7 +2624,7 @@ Si no aparece, debug rápido:
 - `echo $LANGCHAIN_API_KEY` → debe empezar con `lsv2_`.
 - Revisar los logs de uvicorn por errores de autenticación LangSmith.
 
-- [ ] **Step 18.8: Commit**
+- [x] **Step 18.8: Commit**
 
 ```bash
 git add src/shopping_copilot/infrastructure/observability/langsmith_setup.py src/shopping_copilot/infrastructure/llm/anthropic_adapter.py src/shopping_copilot/api/main.py pyproject.toml uv.lock

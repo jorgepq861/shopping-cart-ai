@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+from http import HTTPStatus
+
 import httpx
 import streamlit as st
-from httpx import HTTPStatus
 
 API_URL = "http://localhost:8000/chat"
 

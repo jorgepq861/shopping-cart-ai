@@ -6,6 +6,7 @@ from collections.abc import Sequence
 from typing import Any
 
 from anthropic import AsyncAnthropic
+from langsmith.wrappers import wrap_anthropic
 
 from shopping_copilot.domain.ports import LLMMessage, LLMResponse
 
@@ -20,7 +21,7 @@ class AnthropicAdapter:
         model_sonnet: str,
         model_haiku: str,
     ) -> None:
-        self._client = AsyncAnthropic(api_key=api_key)
+        self._client = wrap_anthropic(AsyncAnthropic(api_key=api_key))
         self._model_sonnet = model_sonnet
         self._model_haiku = model_haiku
 

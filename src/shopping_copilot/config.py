@@ -29,10 +29,10 @@ class Settings(BaseSettings):
     embeddings_model: str = "voyage-3-lite"
 
     # LangSmith
-    langchain_tracing_v2: bool = False
-    langchain_endpoint: str = "https://api.smith.langchain.com"
-    langchain_api_key: SecretStr | None = None
-    langchain_project: str = "shopping-copilot-dev"
+    langsmith_tracing: bool = False
+    langsmith_endpoint: str = "https://api.smith.langchain.com"
+    langsmith_api_key: SecretStr | None = None
+    langsmith_project: str = "shopping-copilot-dev"
 
     # Infra
     postgres_dsn: str
