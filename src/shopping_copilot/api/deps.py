@@ -8,14 +8,15 @@ from __future__ import annotations
 
 from functools import lru_cache
 
-from shopping_copilot.config import Settings, get_settings
+from shopping_copilot.config import get_settings
 from shopping_copilot.domain.ports import EmbeddingsPort, LLMPort
 from shopping_copilot.infrastructure.embeddings.voyage_adapter import VoyageAdapter
 from shopping_copilot.infrastructure.llm.anthropic_adapter import AnthropicAdapter
 
 
 @lru_cache(maxsize=1)
-def _build_llm(settings: Settings) -> LLMPort:
+def _build_llm() -> LLMPort:
+    settings = get_settings()
     return AnthropicAdapter(
         api_key=settings.anthropic_api_key.get_secret_value(),
         model_sonnet=settings.llm_model_sonnet,
@@ -24,7 +25,8 @@ def _build_llm(settings: Settings) -> LLMPort:
 
 
 @lru_cache(maxsize=1)
-def _build_embeddings(settings: Settings) -> EmbeddingsPort:
+def _build_embeddings() -> EmbeddingsPort:
+    settings = get_settings()
     return VoyageAdapter(
         api_key=settings.voyage_api_key.get_secret_value(),
         model=settings.embeddings_model,
@@ -33,8 +35,8 @@ def _build_embeddings(settings: Settings) -> EmbeddingsPort:
 
 
 def get_llm() -> LLMPort:
-    return _build_llm(get_settings())
+    return _build_llm()
 
 
 def get_embeddings() -> EmbeddingsPort:
-    return _build_embeddings(get_settings())
+    return _build_embeddings()

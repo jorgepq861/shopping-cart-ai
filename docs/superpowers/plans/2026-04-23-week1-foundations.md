@@ -2264,41 +2264,46 @@ class ChatResponse(BaseModel):
 
 Routes depend on Ports (Protocols), not concrete adapters.
 Swapping an adapter means changing only this file.
+
+Note: cached builders take NO arguments — they read settings internally.
+Passing Settings would break @lru_cache because Pydantic models aren't hashable.
 """
 from __future__ import annotations
 
 from functools import lru_cache
 
-from shopping_copilot.config import Settings, get_settings
+from shopping_copilot.config import get_settings
 from shopping_copilot.domain.ports import EmbeddingsPort, LLMPort
 from shopping_copilot.infrastructure.embeddings.voyage_adapter import VoyageAdapter
 from shopping_copilot.infrastructure.llm.anthropic_adapter import AnthropicAdapter
 
 
 @lru_cache(maxsize=1)
-def _build_llm(settings: Settings) -> LLMPort:
+def _build_llm() -> LLMPort:
+    s = get_settings()
     return AnthropicAdapter(
-        api_key=settings.anthropic_api_key.get_secret_value(),
-        model_sonnet=settings.llm_model_sonnet,
-        model_haiku=settings.llm_model_haiku,
+        api_key=s.anthropic_api_key.get_secret_value(),
+        model_sonnet=s.llm_model_sonnet,
+        model_haiku=s.llm_model_haiku,
     )
 
 
 @lru_cache(maxsize=1)
-def _build_embeddings(settings: Settings) -> EmbeddingsPort:
+def _build_embeddings() -> EmbeddingsPort:
+    s = get_settings()
     return VoyageAdapter(
-        api_key=settings.voyage_api_key.get_secret_value(),
-        model=settings.embeddings_model,
+        api_key=s.voyage_api_key.get_secret_value(),
+        model=s.embeddings_model,
         dimensions=512,
     )
 
 
 def get_llm() -> LLMPort:
-    return _build_llm(get_settings())
+    return _build_llm()
 
 
 def get_embeddings() -> EmbeddingsPort:
-    return _build_embeddings(get_settings())
+    return _build_embeddings()
 ```
 
 - [x] **Step 15.3: Typecheck**
@@ -2329,7 +2334,7 @@ git commit -m "feat(api): DI container and chat schemas"
 - Create: `src/shopping_copilot/api/routers/chat.py`
 - Modify: `src/shopping_copilot/api/main.py` (registrar el router)
 
-- [ ] **Step 16.1: Crear `chat.py`**
+- [x] **Step 16.1: Crear `chat.py`**
 
 ```python
 """Minimal chat endpoint — single-turn echo via Claude (no agent yet)."""
@@ -2370,7 +2375,7 @@ async def chat(
     )
 ```
 
-- [ ] **Step 16.2: Registrar el router en `main.py`**
+- [x] **Step 16.2: Registrar el router en `main.py`**
 
 Editar `src/shopping_copilot/api/main.py` — añadir el import y el `include_router`:
 
@@ -2389,7 +2394,7 @@ def create_app() -> FastAPI:
     return app
 ```
 
-- [ ] **Step 16.3: Reiniciar uvicorn y probar**
+- [x] **Step 16.3: Reiniciar uvicorn y probar**
 
 (Si dejaste uvicorn corriendo con `--reload`, ya tomó el cambio.)
 
@@ -2401,7 +2406,7 @@ curl -X POST http://localhost:8000/chat \
 
 Expected: JSON con `content`, `model`, `input_tokens`, `output_tokens`. El `content` debe ser una respuesta coherente de Claude.
 
-- [ ] **Step 16.4: Commit**
+- [x] **Step 16.4: Commit**
 
 ```bash
 git add src/shopping_copilot/api/routers/chat.py src/shopping_copilot/api/main.py

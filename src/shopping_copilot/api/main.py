@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from fastapi import FastAPI
 
-from shopping_copilot.api.routers import health
+from shopping_copilot.api.routers import chat, health
 
 
 def create_app() -> FastAPI:
@@ -14,6 +14,7 @@ def create_app() -> FastAPI:
         description="Retail agentic shopping assistant",
     )
     app.include_router(health.router)
+    app.include_router(chat.router)
     return app
 
 
