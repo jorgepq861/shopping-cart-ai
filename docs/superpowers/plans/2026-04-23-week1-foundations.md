@@ -2643,7 +2643,7 @@ git commit -m "feat(obs): wire LangSmith tracing via wrap_anthropic (zero custom
 **Files:**
 - Create: `.github/workflows/ci.yml`
 
-- [ ] **Step 19.1: Crear workflow**
+- [x] **Step 19.1: Crear workflow**
 
 ```yaml
 name: CI
@@ -2714,7 +2714,7 @@ jobs:
         run: uv run pytest -v
 ```
 
-- [ ] **Step 19.2: Crear un repo vacío en GitHub y pushear**
+- [x] **Step 19.2: Crear un repo vacío en GitHub y pushear**
 
 (Sólo si aún no existe el repo remoto — en la UI de GitHub, crear uno, luego:)
 
@@ -2723,11 +2723,11 @@ git remote add origin git@github.com:<tu-usuario>/agentic-ai.git
 git push -u origin main
 ```
 
-- [ ] **Step 19.3: Verificar CI en GitHub**
+- [x] **Step 19.3: Verificar CI en GitHub**
 
 Ir a la pestaña **Actions** del repo — el workflow debe estar corriendo. Si falla, revisar logs y ajustar.
 
-- [ ] **Step 19.4: Commit**
+- [x] **Step 19.4: Commit**
 
 ```bash
 git add .github/workflows/ci.yml
