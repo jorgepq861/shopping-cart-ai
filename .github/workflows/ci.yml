@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: shopping
+          POSTGRES_PASSWORD: shopping
+          POSTGRES_DB: shopping
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U shopping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      POSTGRES_DSN: postgresql+asyncpg://shopping:shopping@localhost:5432/shopping
+      ANTHROPIC_API_KEY: dummy-ci-key
+      VOYAGE_API_KEY: dummy-ci-key
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: "latest"
+
+      - name: Install Python
+        run: uv python install 3.12
+
+      - name: Sync deps
+        run: uv sync
+
+      - name: Alembic upgrade
+        run: uv run alembic upgrade head
+
+      - name: Lint
+        run: |
+          uv run ruff check .
+          uv run ruff format --check .
+
+      - name: Typecheck
+        run: uv run mypy src
+
+      - name: Unit + integration tests
+        run: uv run pytest -v
